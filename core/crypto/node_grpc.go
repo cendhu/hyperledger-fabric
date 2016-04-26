@@ -39,26 +39,34 @@ func (node *nodeImpl) initTLS() error {
 		// If the TLS root certificate is not present in the filesystem, download it using an insecure connection and store it. After
 		// this initial insecure communication all connections to the membership services are going to be secure under TLS if TLS is enabled.
 		
-		node.info("CHECKING TLS ROOT CERT EXISTS IN PATH %s...", node.conf.getTLSCACertsExternalPath())
-		pathExists, err := util.PathExists(node.conf.getTLSCACertsExternalPath())
+		tlsRootCertPath := node.conf.getPathForAlias(node.conf.getTLSCACertsExternalPath())
+		
+		node.debug("Checking TLSCA root cert presence in path %s...", tlsRootCertPath)
+		pathExists, err := util.PathExists(tlsRootCertPath)
 		if err != nil {
-			node.error("Failed checking TLS Root Certificate path %s. [%s].", node.conf.getTLSCACertsExternalPath(), err.Error())
+			node.error("Failed checking TLSCA root cert path %s. [%s].", tlsRootCertPath, err.Error())
 			return err
 		}
 		
 		if !pathExists {
-			node.info("TLS ROOT DOES NOT EXISTS IN PATH %s. DOWNLOADING...", node.conf.getTLSCACertsExternalPath())
-			node.retrieveTLSRootCert(context.Background(), node.conf.getTLSCACertsExternalPath(), false)
+			node.debug("TLSCA root cert does not exists in path. Downloading...")
+			err := node.retrieveTLSRootCert(context.Background(), node.conf.getTLSCACertsExternalPath(), false)
+			
+			if err != nil {
+				node.error("Failed downloading TLSCA root cert [%s].", err.Error())
+				return err
+			}
+			
+			node.debug("TLSCA root cert successfully downloaded into %s.", tlsRootCertPath)
 		}
 		
-		node.info("LOADING TLS ROOT CERT FROM PATH %s.", node.conf.getPathForAlias(node.conf.getTLSCACertsExternalPath()))
-		pem, err := node.ks.loadExternalCert(node.conf.getPathForAlias(node.conf.getTLSCACertsExternalPath()))
+		pem, err := node.ks.loadExternalCert(tlsRootCertPath)
 		if err != nil {
 			node.error("Failed loading TLSCA certificates chain [%s].", err.Error())
 
 			return err
 		}
-		node.info("TLS ROOT CERT LOADED SUCCESSFULLY FROM PATH %s.", node.conf.getPathForAlias(node.conf.getTLSCACertsExternalPath()))
+		node.debug("TLSCA root cert loaded successfully.")
 
 		node.tlsCertPool = x509.NewCertPool()
 		ok := node.tlsCertPool.AppendCertsFromPEM(pem)
@@ -67,6 +75,7 @@ func (node *nodeImpl) initTLS() error {
 
 			return errors.New("Failed appending TLSCA certificates chain.")
 		}
+		
 		node.debug("Initiliazing TLS...Done")
 	} else {
 		node.debug("Initiliazing TLS...Disabled!!!")
@@ -76,7 +85,7 @@ func (node *nodeImpl) initTLS() error {
 }
 
 func (node *nodeImpl) getClientConn(address string, serverName string, secure bool) (*grpc.ClientConn, error) {
-	node.debug("Dial to addr:[%s], with serverName:[%s]...", address, serverName)
+	node.debug("Dial to addr:[%s], with serverName:[%s] using secure connection=[%v]", address, serverName, secure)
 
 	var conn *grpc.ClientConn
 	var err error
