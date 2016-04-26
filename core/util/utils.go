@@ -25,6 +25,7 @@ import (
 	"io"
 	"time"
 	"math/big"
+	"os"
 
 	gp "google/protobuf"
 
@@ -90,5 +91,16 @@ func GenerateHashFromSignature(path string, ctor string, args []string) []byte {
 	copy(b, cbytes)
 	hash := ComputeCryptoHash(b)
 	return hash
+}
+//returns true if the given path (file or directory) exists, false otherwise.
+func PathExists(path string) (bool, error) {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true, nil
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	return true, err
 }
 

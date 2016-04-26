@@ -103,6 +103,33 @@ func (node *nodeImpl) loadTLSCACertsChain() error {
 	return nil
 }
 
+// retrieves the TLS Root Certificate from the TLSCA server and stores it in the provided path using 
+// a secure (secure=true) or an insecure (secure=false) connection
+func (node *nodeImpl) retrieveTLSRootCert(ctx context.Context, path string, secure bool) (error) {
+	conn, tlscaP, err := node.getTLSCAClient(secure)
+	if err != nil {
+		node.error("Failed dialing in: %s", err)
+
+		return err
+	}
+	defer conn.Close()
+
+	resp, err := tlscaP.ReadCACertificate(ctx, &membersrvc.Empty{})
+	if err != nil {
+		node.error("Failed requesting tls root certificate: %s", err)
+
+		return err
+	}
+	
+	// Store tls cert
+	if err := node.ks.storeCert(path, resp.Cert); err != nil {
+		node.error("Failed storing tls root certificate: %s", err)
+		return err
+	}
+
+	return nil
+}
+
 func (node *nodeImpl) getTLSCertificateFromTLSCA(id, affiliation string) (interface{}, []byte, error) {
 	node.debug("getTLSCertificate...")
 
@@ -155,10 +182,10 @@ func (node *nodeImpl) getTLSCertificateFromTLSCA(id, affiliation string) (interf
 	return priv, pbCert.Cert.Cert, nil
 }
 
-func (node *nodeImpl) getTLSCAClient() (*grpc.ClientConn, membersrvc.TLSCAPClient, error) {
+func (node *nodeImpl) getTLSCAClient(secure bool) (*grpc.ClientConn, membersrvc.TLSCAPClient, error) {
 	node.debug("Getting TLSCA client...")
 
-	conn, err := node.getClientConn(node.conf.getTLSCAPAddr(), node.conf.getTLSCAServerName())
+	conn, err := node.getClientConn(node.conf.getTLSCAPAddr(), node.conf.getTLSCAServerName(), secure)
 	if err != nil {
 		node.error("Failed getting client connection: [%s]", err)
 	}
@@ -171,7 +198,7 @@ func (node *nodeImpl) getTLSCAClient() (*grpc.ClientConn, membersrvc.TLSCAPClien
 }
 
 func (node *nodeImpl) callTLSCACreateCertificate(ctx context.Context, in *membersrvc.TLSCertCreateReq, opts ...grpc.CallOption) (*membersrvc.TLSCertCreateResp, error) {
-	conn, tlscaP, err := node.getTLSCAClient()
+	conn, tlscaP, err := node.getTLSCAClient(node.conf.isTLSEnabled())
 	if err != nil {
 		node.error("Failed dialing in: %s", err)
 
@@ -188,3 +215,5 @@ func (node *nodeImpl) callTLSCACreateCertificate(ctx context.Context, in *member
 
 	return resp, nil
 }
+
+

@@ -82,7 +82,7 @@ func (node *nodeImpl) loadTCACertsChain() error {
 func (node *nodeImpl) getTCAClient() (*grpc.ClientConn, membersrvc.TCAPClient, error) {
 	node.debug("Getting TCA client...")
 
-	conn, err := node.getClientConn(node.conf.getTCAPAddr(), node.conf.getTCAServerName())
+	conn, err := node.getClientConn(node.conf.getTCAPAddr(), node.conf.getTCAServerName(), node.conf.isTLSEnabled())
 	if err != nil {
 		node.error("Failed getting client connection: [%s]", err)
 	}

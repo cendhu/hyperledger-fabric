@@ -269,7 +269,7 @@ func (node *nodeImpl) loadECACertsChain() error {
 func (node *nodeImpl) getECAClient() (*grpc.ClientConn, membersrvc.ECAPClient, error) {
 	node.debug("Getting ECA client...")
 
-	conn, err := node.getClientConn(node.conf.getECAPAddr(), node.conf.getECAServerName())
+	conn, err := node.getClientConn(node.conf.getECAPAddr(), node.conf.getECAServerName(), node.conf.isTLSEnabled())
 	if err != nil {
 		node.error("Failed getting client connection: [%s]", err)
 	}
