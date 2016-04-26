@@ -51,12 +51,14 @@ func (node *nodeImpl) initTLS() error {
 			node.retrieveTLSRootCert(context.Background(), node.conf.getTLSCACertsExternalPath(), false)
 		}
 		
-		pem, err := node.ks.loadExternalCert(node.conf.getTLSCACertsExternalPath())
+		node.info("LOADING TLS ROOT CERT FROM PATH %s.", node.conf.getPathForAlias(node.conf.getTLSCACertsExternalPath()))
+		pem, err := node.ks.loadExternalCert(node.conf.getPathForAlias(node.conf.getTLSCACertsExternalPath()))
 		if err != nil {
 			node.error("Failed loading TLSCA certificates chain [%s].", err.Error())
 
 			return err
 		}
+		node.info("TLS ROOT CERT LOADED SUCCESSFULLY FROM PATH %s.", node.conf.getPathForAlias(node.conf.getTLSCACertsExternalPath()))
 
 		node.tlsCertPool = x509.NewCertPool()
 		ok := node.tlsCertPool.AppendCertsFromPEM(pem)
