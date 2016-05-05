@@ -192,7 +192,7 @@ func (tca *TCA) initializePreKeyTree() (error) {
 }
 
 func (tca *TCA) getPreKFrom(enrollmentCertificate *x509.Certificate) ([]byte, error) {
-	 _ , _, affiliation, err := tca.eca.parseEnrollId(enrollmentCertificate.Subject.CommonName)
+	 _ , affiliation, err := tca.eca.parseEnrollId(enrollmentCertificate.Subject.CommonName)
 	if err != nil { 
 		return  nil, err
 	} 

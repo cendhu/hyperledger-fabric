@@ -23,7 +23,6 @@ import (
 	"bytes"
 	"crypto/ecdsa"
 	"crypto/rand"
-	//	"crypto/rsa"
 	"crypto/subtle"
 	"crypto/x509"
 	"crypto/x509/pkix"
@@ -156,12 +155,11 @@ func (eca *ECA) populateUsersTable() {
 			Panic.Panicln(err)
 		}
 	
-		var affiliation, affiliation_role string
-		if len(vals) >= 4 { 
+		var affiliation string
+		if len(vals) >= 3 { 
 			affiliation = vals[2]	
-			affiliation_role = vals[3]
 		}
-		eca.registerUser(id, affiliation, affiliation_role, role, vals[1])
+		eca.registerUser(id, affiliation, role, vals[1])
 	}
 }
 
@@ -369,7 +367,7 @@ func (ecap *ECAP) RevokeCertificatePair(context.Context, *pb.ECertRevokeReq) (*p
 func (ecaa *ECAA) RegisterUser(ctx context.Context, in *pb.RegisterUserReq) (*pb.Token, error) {
 	Trace.Println("grpc ECAA:RegisterUser")
 
-   tok, err :=  ecaa.eca.registerUser(in.Id.Id, in.Account, in.Affiliation, int(in.Role))
+   tok, err :=  ecaa.eca.registerUser(in.Id.Id, in.Affiliation, int(in.Role))
    return &pb.Token{[]byte(tok)}, err
 }
 

@@ -436,7 +436,7 @@ func (ca *CA) requireAffiliation(role int) (bool) {
 	return role != 4 && role != 8 
 }
 
-func (ca *CA) validateAndGenerateEnrollId(id, affiliation, affiliation_role string, role int) (string, error) {
+func (ca *CA) validateAndGenerateEnrollId(id, affiliation string, role int) (string, error) {
 	if ca.requireAffiliation(role) {
 		valid, err := ca.isValidAffiliation(affiliation)
 		if err != nil {
@@ -447,17 +447,17 @@ func (ca *CA) validateAndGenerateEnrollId(id, affiliation, affiliation_role stri
     		return "", errors.New("Invalid affiliation group " + affiliation)
     	}
 		
-	    return ca.generateEnrollId(id, affiliation_role, affiliation)
+	    return ca.generateEnrollId(id, affiliation)
 	} 
 	
 	return "", nil
 }
 
-func (ca *CA) registerUser(id, affiliation, affiliation_role string, role int, opt ...string) (string, error) { 
+func (ca *CA) registerUser(id, affiliation string, role int, opt ...string) (string, error) { 
     var tok string
     var err error
 	var enrollID string
-  	enrollID, err = ca.validateAndGenerateEnrollId(id, affiliation, affiliation_role, role)
+  	enrollID, err = ca.validateAndGenerateEnrollId(id, affiliation, role)
 
     if err != nil { 
     	return "", err
@@ -599,32 +599,31 @@ func (ca *CA) readAffiliationGroups() ([]*AffiliationGroup, error) {
 	return group_list, nil
 }
 
-func (ca *CA) generateEnrollId(id string, role string, affiliation string) (string, error) {
-	if id == "" || role == "" || affiliation == "" {
-		return "", errors.New("Please provide all the input parameters, id, role and affiliation")	
+func (ca *CA) generateEnrollId(id string, affiliation string) (string, error) {
+	if id == "" || affiliation == "" {
+		return "", errors.New("Please provide all the input parameters, id and affiliation")	
 	}
 		
-	if strings.Contains(id, "\\") || strings.Contains(role, "\\") || strings.Contains(affiliation, "\\") {
+	if strings.Contains(id, "\\") || strings.Contains(affiliation, "\\") {
 		return "", errors.New("Do not include the escape character \\ as part of the values")
 	}
 		
-	return id+"\\"+affiliation+"\\"+role, nil
+	return id + "\\" + affiliation, nil
 }
 
-func (ca *CA) parseEnrollId(enrollId string) (id string, role string, affiliation string, err error) {
+func (ca *CA) parseEnrollId(enrollId string) (id string, affiliation string, err error) {
 	
 	if enrollId == "" {
-		return  "", "", "", errors.New("Input parameter missing")
+		return  "", "", errors.New("Input parameter missing")
 	}
 	
 	enrollIdSections := strings.Split(enrollId, "\\")
 	
-	if(len(enrollIdSections) != 3) {
-		return "", "", "", errors.New ("Either the userId, Role or affiliation is missing from the enrollmentID")
+	if(len(enrollIdSections) != 2) {
+		return "", "", errors.New ("Either the userID or the affiliation is missing from the enrollmentID")
 	}
 	
 	id = enrollIdSections[0]
-	role = enrollIdSections[2]
 	affiliation = enrollIdSections[1]
 	err = nil
 	return
