@@ -54,7 +54,7 @@ func initMemSrvc() (net.Listener, error) {
 	finitMemSrvc(nil)
 
 	ca.LogInit(ioutil.Discard, os.Stdout, os.Stdout, os.Stderr, os.Stdout)
-
+	aca := ca.NewACA()
 	eca := ca.NewECA()
 	tca := ca.NewTCA(eca)
 	tlsca := ca.NewTLSCA(eca)
@@ -67,6 +67,7 @@ func initMemSrvc() (net.Listener, error) {
 	var opts []grpc.ServerOption
 	server := grpc.NewServer(opts...)
 
+	aca.Start(server)
 	eca.Start(server)
 	tca.Start(server)
 	tlsca.Start(server)
@@ -156,7 +157,7 @@ func createDeployTransaction(dspec *pb.ChaincodeDeploymentSpec, uuid string) (*p
 			return nil, err
 		}
 
-		tx, err = sec.NewChaincodeDeployTransaction(dspec, uuid)
+		tx, err = sec.NewChaincodeDeployTransaction(dspec, map[string]string{}, uuid)
 		if nil != err {
 			return nil, err
 		}
@@ -180,9 +181,9 @@ func createTransaction(invokeTx bool, spec *pb.ChaincodeInvocationSpec, uuid str
 			return nil, err
 		}
 		if invokeTx {
-			tx, err = sec.NewChaincodeExecute(spec, uuid)
+			tx, err = sec.NewChaincodeExecute(spec, map[string]string{}, uuid)
 		} else {
-			tx, err = sec.NewChaincodeQuery(spec, uuid)
+			tx, err = sec.NewChaincodeQuery(spec, map[string]string{}, uuid)
 		}
 		if nil != err {
 			return nil, err

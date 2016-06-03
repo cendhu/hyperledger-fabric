@@ -464,9 +464,6 @@ func (tcap *TCAP) generateExtensions(tcertid *big.Int, tidx []byte, enrollmentCe
 		return nil, nil, err
 	}
 
-	// save k used to encrypt EnrollmentID
-	//ks["enrollmentId"] = enrollmentIdKey
-
 	attributeIdentifierIndex := 9
 	count := 0
 	attrsHeader := make(map[string]int)
