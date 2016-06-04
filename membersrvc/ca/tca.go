@@ -203,7 +203,6 @@ func (tca *TCA) Start(srv *grpc.Server) {
 	tca.startTCAP(srv)
 	tca.startTCAA(srv)
 
-	tca.startValidityPeriodUpdate()
 	Info.Println("TCA started.")
 }
 
