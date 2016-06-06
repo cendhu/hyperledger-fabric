@@ -580,7 +580,7 @@ func (client *clientImpl) callTCACreateCertificateSet(num int) ([]byte, []*membe
 	}
 
 	// 2. Sign rawReq
-	r, s, err := primitives.ECDSASignDirect(enrollmentPrivKey, rawReq)
+	r, s, err := client.ecdsaSignWithEnrollmentKey(rawReq)
 	if err != nil {
 		client.error("Failed creating signature for [% x]: [%s].", rawReq, err.Error())
 		return nil, nil, err

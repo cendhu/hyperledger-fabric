@@ -18,15 +18,19 @@ package ca
 
 import (
 	"fmt"
+
 	"io/ioutil"
 	"net"
 	"os"
 	"testing"
-	"time"
+
+	"fmt"
 
 	"github.com/hyperledger/fabric/core/crypto/primitives"
 	"github.com/spf13/viper"
 	"google.golang.org/grpc"
+
+	"time"
 )
 
 var (
