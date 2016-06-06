@@ -17,6 +17,8 @@ limitations under the License.
 package crypto
 
 import (
+	"google/protobuf"
+
 	membersrvc "github.com/hyperledger/fabric/membersrvc/protos"
 
 	"bytes"
@@ -26,7 +28,6 @@ import (
 
 	"errors"
 	"fmt"
-	"google/protobuf"
 	"math/big"
 	"strconv"
 	"strings"
@@ -579,7 +580,7 @@ func (client *clientImpl) callTCACreateCertificateSet(num int) ([]byte, []*membe
 	}
 
 	// 2. Sign rawReq
-	r, s, err := client.ecdsaSignWithEnrollmentKey(rawReq)
+	r, s, err := primitives.ECDSASignDirect(enrollmentPrivKey, rawReq)
 	if err != nil {
 		client.error("Failed creating signature for [% x]: [%s].", rawReq, err.Error())
 		return nil, nil, err

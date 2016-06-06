@@ -331,9 +331,7 @@ eca:
                   bank_c
               institutions:
                   institution_a
-
         users:
-                system_chaincode_invoker: 1 DRJ20pEql15a
                 diego: 2 DRJ23pEQl16a
 
 pki:
