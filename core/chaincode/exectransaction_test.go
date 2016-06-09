@@ -59,6 +59,7 @@ func initMemSrvc() (net.Listener, error) {
 
 	ca.LogInit(ioutil.Discard, os.Stdout, os.Stdout, os.Stderr, os.Stdout)
 
+	aca := ca.NewACA()
 	eca := ca.NewECA()
 	tca := ca.NewTCA(eca)
 	tlsca := ca.NewTLSCA(eca)
@@ -71,6 +72,7 @@ func initMemSrvc() (net.Listener, error) {
 	var opts []grpc.ServerOption
 	server := grpc.NewServer(opts...)
 
+	aca.Start(server)
 	eca.Start(server)
 	tca.Start(server)
 	tlsca.Start(server)
