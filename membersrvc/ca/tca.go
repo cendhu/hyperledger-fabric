@@ -58,6 +58,9 @@ var (
 
 	// Padding for encryption.
 	Padding = []byte{255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255}
+
+	// RootPreKeySize for attribute encryption keys derivation
+	RootPreKeySize = 48
 )
 
 // TCA is the transaction certificate authority.
@@ -130,7 +133,7 @@ func (tca *TCA) readRootPreKey() error {
 	var cooked string
 	raw, err := ioutil.ReadFile(tca.path + "/root_pk.hmac")
 	if err != nil {
-		key := make([]byte, 48)
+		key := make([]byte, RootPreKeySize)
 		rand.Reader.Read(key)
 		cooked = base64.StdEncoding.EncodeToString(key)
 
@@ -611,8 +614,7 @@ func (tcap *TCAP) ReadCertificateSet(ctx context.Context, in *pb.TCertReadSetReq
 			return nil, err
 		}
 
-		// TODO: TCert must include attribute keys, we need to save them in the db when generating the batch of TCerts
-		certs = append(certs, &pb.TCert{Cert: raw, Prek0: make([]byte, 48)})
+		certs = append(certs, &pb.TCert{Cert: raw, Prek0: make([]byte, RootPreKeySize)})
 	}
 	if err = rows.Err(); err != nil {
 		return nil, err
@@ -717,8 +719,7 @@ func (tcaa *TCAA) ReadCertificateSets(ctx context.Context, in *pb.TCertReadSetsR
 				certs = nil
 			}
 
-			// TODO: TCert must include attribute keys, we need to save them in the db when generating the batch of TCerts
-			certs = append(certs, &pb.TCert{Cert: cert, Prek0: make([]byte, 48)})
+			certs = append(certs, &pb.TCert{Cert: cert, Prek0: make([]byte, RootPreKeySize)})
 		}
 		if err = rows.Err(); err != nil {
 			return nil, err

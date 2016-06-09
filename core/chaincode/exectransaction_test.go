@@ -44,6 +44,9 @@ import (
 	"google.golang.org/grpc/grpclog"
 )
 
+// attributes to request in the batch of tcerts while deploying, invoking or querying
+var attributes = []string{"company", "position"}
+
 func getNowMillis() int64 {
 	nanos := time.Now().UnixNano()
 	return nanos / 1000000
@@ -157,7 +160,7 @@ func createDeployTransaction(dspec *pb.ChaincodeDeploymentSpec, uuid string) (*p
 			return nil, err
 		}
 
-		tx, err = sec.NewChaincodeDeployTransaction(dspec, uuid)
+		tx, err = sec.NewChaincodeDeployTransaction(dspec, attributes, uuid)
 		if nil != err {
 			return nil, err
 		}
@@ -181,9 +184,9 @@ func createTransaction(invokeTx bool, spec *pb.ChaincodeInvocationSpec, uuid str
 			return nil, err
 		}
 		if invokeTx {
-			tx, err = sec.NewChaincodeExecute(spec, uuid)
+			tx, err = sec.NewChaincodeExecute(spec, attributes, uuid)
 		} else {
-			tx, err = sec.NewChaincodeQuery(spec, uuid)
+			tx, err = sec.NewChaincodeQuery(spec, attributes, uuid)
 		}
 		if nil != err {
 			return nil, err
