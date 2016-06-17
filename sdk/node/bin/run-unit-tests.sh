@@ -10,8 +10,8 @@ main() {
    startMemberServices
 
    # Run tests in network mode
-   export DEPLOY_MODE='net'
-   runTests
+   #export DEPLOY_MODE='net'
+   #runTests
 
    # Run tests in dev mode
    export DEPLOY_MODE='dev'
@@ -50,10 +50,10 @@ runTests() {
    stopPeer
    startPeer
    # Run some tests in network mode
-   runRegistrarTests
-   runChainTests
-   runAssetMgmtTests
-   #runAssetMgmtWithRolesTests
+   #runRegistrarTests
+   #runChainTests
+   #runAssetMgmtTests
+   runAssetMgmtWithRolesTests
    echo "End running tests in network mode"
 }
 
@@ -165,7 +165,7 @@ runAssetMgmtTests() {
 
 runAssetMgmtWithRolesTests() {
    echo "BEGIN running asset management with roles tests ..."
-   preExample asset_management_with_roles
+   preExample asset_management_with_roles mycc3
    node $UNITTEST/asset-mgmt-with-roles.js
    postExample asset_management_with_roles
    echo "END running asset management with roles tests"
